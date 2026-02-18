@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from backend.models.db import init_db
-from backend.routers import katas, execute, auth
+from backend.routers import katas, execute, auth, progress
 
 app = FastAPI(
     title="OpenCV Interactive Playground",
@@ -26,6 +26,7 @@ app.add_middleware(
 app.include_router(katas.router)
 app.include_router(execute.router)
 app.include_router(auth.router)
+app.include_router(progress.router)
 
 
 @app.on_event("startup")

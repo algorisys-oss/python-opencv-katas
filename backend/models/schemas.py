@@ -56,3 +56,22 @@ class UserLogin(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str = "bearer"
+
+
+# ── Progress & Code Saving ───────────────────────────────────────────────────
+
+class CodeVersionSave(BaseModel):
+    code: str
+
+
+class CodeVersionOut(BaseModel):
+    id: int
+    kata_id: int
+    code: str
+    saved_at: str
+
+
+class ProgressOut(BaseModel):
+    kata_id: int
+    kata_slug: str
+    completed_at: str

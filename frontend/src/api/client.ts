@@ -1,5 +1,6 @@
 /**
  * api/client.ts — Typed API client for the OpenCV Playground backend.
+ * Automatically attaches Authorization header when a token exists.
  */
 
 const BASE = "/api";
@@ -36,9 +37,31 @@ export interface ExecuteResult {
     error: string;
 }
 
+export interface ProgressItem {
+    kata_id: number;
+    kata_slug: string;
+    completed_at: string;
+}
+
+export interface SavedCode {
+    id: number;
+    kata_id: number;
+    code: string;
+    saved_at: string;
+}
+
+function authHeaders(): Record<string, string> {
+    const headers: Record<string, string> = { "Content-Type": "application/json" };
+    const token = localStorage.getItem("auth_token");
+    if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+    }
+    return headers;
+}
+
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
     const res = await fetch(`${BASE}${path}`, {
-        headers: { "Content-Type": "application/json" },
+        headers: authHeaders(),
         ...options,
     });
     if (!res.ok) {
@@ -64,6 +87,7 @@ export const api = {
             method: "POST",
         }),
 
+    // Auth
     login: (email: string, password: string) =>
         request<{ access_token: string; token_type: string }>("/auth/login", {
             method: "POST",
@@ -75,4 +99,23 @@ export const api = {
             method: "POST",
             body: JSON.stringify({ email, password }),
         }),
+
+    // Progress
+    getProgress: () => request<ProgressItem[]>("/me/progress"),
+
+    markComplete: (slug: string) =>
+        request<{ status: string }>(`/katas/${slug}/complete`, { method: "POST" }),
+
+    unmarkComplete: (slug: string) =>
+        request<{ status: string }>(`/katas/${slug}/complete`, { method: "DELETE" }),
+
+    // Code saving
+    saveCode: (slug: string, code: string) =>
+        request<SavedCode>(`/katas/${slug}/save`, {
+            method: "POST",
+            body: JSON.stringify({ code }),
+        }),
+
+    getSavedCode: (slug: string) =>
+        request<SavedCode | null>(`/katas/${slug}/saved`),
 };

@@ -2,12 +2,14 @@
  * kata-page.tsx — Main kata view with two tabs: Details and Code.
  * Code tab supports: maximize editor, maximize output, open output in new tab.
  * Live camera katas run in "local mode" — launching on the desktop with real camera.
+ * When logged in: save code, load saved code, mark complete/incomplete.
  */
 
 import { Component, createSignal, createResource, createEffect, Show } from "solid-js";
 import { useParams } from "@solidjs/router";
 import { api } from "../api/client";
 import type { ExecuteResult } from "../api/client";
+import { useAuth } from "../context/AuthContext";
 import KataHeader from "../components/kata-header";
 import DemoPanel from "../components/demo-panel";
 import CodeEditor from "../components/code-editor";
@@ -19,6 +21,7 @@ type PanelFocus = "split" | "editor" | "output";
 const KataPage: Component = () => {
     const params = useParams<{ slug: string }>();
     const [kata] = createResource(() => params.slug, api.getKata);
+    const { user } = useAuth();
 
     const [activeTab, setActiveTab] = createSignal<Tab>("details");
     const [code, setCode] = createSignal("");
@@ -26,6 +29,9 @@ const KataPage: Component = () => {
     const [running, setRunning] = createSignal(false);
     const [localRunning, setLocalRunning] = createSignal(false);
     const [focus, setFocus] = createSignal<PanelFocus>("split");
+    const [saving, setSaving] = createSignal(false);
+    const [saveMsg, setSaveMsg] = createSignal("");
+    const [completed, setCompleted] = createSignal(false);
 
     const starterCode = () => kata()?.starter_code ?? "";
     const isLive = () => kata()?.level === "live";
@@ -37,19 +43,69 @@ const KataPage: Component = () => {
         setRunning(false);
         setLocalRunning(false);
         setFocus("split");
+        setSaveMsg("");
+        setCompleted(false);
     });
 
-    // Set code from kata when it loads (handles navigation correctly)
+    // Set code from kata when it loads, then try loading saved code
     createEffect(() => {
         const k = kata();
         if (k) {
             setCode(k.starter_code);
+            // Load saved code if logged in
+            if (user()) {
+                api.getSavedCode(k.slug).then((saved) => {
+                    if (saved && saved.code) {
+                        setCode(saved.code);
+                    }
+                }).catch(() => {});
+
+                // Check completion status
+                api.getProgress().then((progress) => {
+                    setCompleted(progress.some((p) => p.kata_slug === k.slug));
+                }).catch(() => {});
+            }
         }
     });
 
     const handleReset = () => {
         setCode(starterCode());
         setResult(null);
+        setSaveMsg("");
+    };
+
+    const handleSave = async () => {
+        const k = kata();
+        if (!k || saving()) return;
+        setSaving(true);
+        setSaveMsg("");
+        try {
+            await api.saveCode(k.slug, code());
+            setSaveMsg("Saved!");
+            setTimeout(() => setSaveMsg(""), 2000);
+        } catch (e: any) {
+            setSaveMsg("Save failed");
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleToggleComplete = async () => {
+        const k = kata();
+        if (!k) return;
+        try {
+            if (completed()) {
+                await api.unmarkComplete(k.slug);
+                setCompleted(false);
+            } else {
+                await api.markComplete(k.slug);
+                setCompleted(true);
+            }
+            // Refresh sidebar progress
+            (window as any).__refreshProgress?.();
+        } catch {
+            // ignore
+        }
     };
 
     const handleRun = async () => {
@@ -135,6 +191,18 @@ const KataPage: Component = () => {
                             >
                                 Code
                             </button>
+
+                            {/* Completion toggle — only when logged in */}
+                            <Show when={user()}>
+                                <button
+                                    class="kata-tab kata-tab--complete"
+                                    classList={{ "kata-tab--completed": completed() }}
+                                    onClick={handleToggleComplete}
+                                    title={completed() ? "Mark as incomplete" : "Mark as complete"}
+                                >
+                                    {completed() ? "✓ Completed" : "Mark Complete"}
+                                </button>
+                            </Show>
                         </div>
 
                         {/* Tab content */}
@@ -159,6 +227,16 @@ const KataPage: Component = () => {
                                                 <button class="btn btn--ghost" onClick={handleReset} title="Reset to starter code">
                                                     Reset
                                                 </button>
+                                                <Show when={user()}>
+                                                    <button
+                                                        class="btn btn--ghost"
+                                                        onClick={handleSave}
+                                                        disabled={saving()}
+                                                        title="Save your code"
+                                                    >
+                                                        {saving() ? "Saving…" : saveMsg() || "Save"}
+                                                    </button>
+                                                </Show>
                                                 <button
                                                     class="btn btn--icon"
                                                     classList={{ "btn--icon-active": focus() === "editor" }}

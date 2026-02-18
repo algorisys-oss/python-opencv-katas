@@ -1,15 +1,18 @@
 /**
  * kata-sidebar.tsx — Left sidebar listing all katas grouped by level.
+ * Shows completion checkmarks when user is logged in.
  */
 
-import { Component, For, createMemo, createEffect, onMount } from "solid-js";
+import { Component, For, createMemo, onMount } from "solid-js";
 import { A } from "@solidjs/router";
 import type { KataListItem } from "../api/client";
 import { useTheme } from "../context/ThemeContext";
+import AuthDropdown from "./auth-dropdown";
 
 interface Props {
     katas: KataListItem[];
     currentSlug: string;
+    completedSlugs?: Set<string>;
 }
 
 const LEVEL_ORDER = ["beginner", "intermediate", "advanced", "live"] as const;
@@ -36,7 +39,6 @@ const KataSidebar: Component<Props> = (props) => {
     // Map slug -> serial number (based on sorted index)
     const serialMap = createMemo(() => {
         const map = new Map<string, number>();
-        // props.katas is already sorted by ID from API
         props.katas.forEach((k, i) => {
             map.set(k.slug, i + 1);
         });
@@ -56,16 +58,19 @@ const KataSidebar: Component<Props> = (props) => {
         <aside class="sidebar">
             <div class="sidebar-header">
                 <div class="sidebar-brand">
-                    <span class="sidebar-logo">⚡</span>
+                    <img class="sidebar-logo-img" src="/logo.svg" alt="Logo" width="22" height="22" />
                     <span class="sidebar-title">OpenCV Playground</span>
                 </div>
-                <button
-                    class="btn btn--icon"
-                    onClick={toggleTheme}
-                    title={`Switch to ${theme() === "light" ? "Dark" : "Light"} Mode`}
-                >
-                    {theme() === "light" ? "🌙" : "☀️"}
-                </button>
+                <div class="sidebar-header-actions">
+                    <AuthDropdown />
+                    <button
+                        class="btn btn--icon"
+                        onClick={toggleTheme}
+                        title={`Switch to ${theme() === "light" ? "Dark" : "Light"} Mode`}
+                    >
+                        {theme() === "light" ? "🌙" : "☀️"}
+                    </button>
+                </div>
             </div>
 
             <nav class="sidebar-nav" ref={navRef}>
@@ -84,6 +89,9 @@ const KataSidebar: Component<Props> = (props) => {
                                             classList={{ "sidebar-item--active": kata.slug === props.currentSlug }}
                                         >
                                             <span class="sidebar-item-title">
+                                                {props.completedSlugs?.has(kata.slug) && (
+                                                    <span class="sidebar-item-check">✓ </span>
+                                                )}
                                                 {serialMap().get(kata.slug)}. {kata.title}
                                             </span>
                                             <div class="sidebar-item-concepts">

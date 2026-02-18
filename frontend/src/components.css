@@ -51,6 +51,10 @@
     font-size: 20px;
 }
 
+.sidebar-logo-img {
+    flex-shrink: 0;
+}
+
 .sidebar-title {
     font-size: 14px;
     font-weight: 700;
@@ -712,4 +716,165 @@
     color: var(--color-error);
     border-color: color-mix(in srgb, var(--color-error) 30%, transparent);
     background-color: color-mix(in srgb, var(--color-error) 5%, transparent);
+}
+
+/* ── Sidebar Header Actions ────────────────────────────────────────────────── */
+
+.sidebar-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* ── Sidebar Completion Check ──────────────────────────────────────────────── */
+
+.sidebar-item-check {
+    color: #3fb950;
+    font-weight: 700;
+    font-size: 12px;
+}
+
+/* ── Auth Dropdown ─────────────────────────────────────────────────────────── */
+
+.auth-dropdown {
+    position: relative;
+}
+
+.auth-dropdown-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 99;
+}
+
+.auth-dropdown-panel {
+    position: fixed;
+    z-index: 100;
+    width: 260px;
+    background-color: var(--color-bg-elevated);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    padding: 12px;
+}
+
+.auth-form-tabs {
+    display: flex;
+    gap: 0;
+    margin-bottom: 12px;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.auth-form-tab {
+    flex: 1;
+    padding: 8px 0;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    text-align: center;
+    transition: color 0.15s, border-color 0.15s;
+}
+
+.auth-form-tab:hover {
+    color: var(--color-text-primary);
+}
+
+.auth-form-tab--active {
+    color: var(--color-accent);
+    border-bottom-color: var(--color-accent);
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.auth-input {
+    width: 100%;
+    padding: 8px 10px;
+    font-size: 13px;
+    font-family: var(--font-sans);
+    color: var(--color-text-primary);
+    background-color: var(--color-bg-base);
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    outline: none;
+    transition: border-color 0.15s;
+    box-sizing: border-box;
+}
+
+.auth-input:focus {
+    border-color: var(--color-accent);
+}
+
+.auth-input::placeholder {
+    color: var(--color-text-muted);
+}
+
+.auth-error {
+    font-size: 12px;
+    color: var(--color-error);
+    padding: 4px 0;
+}
+
+.auth-submit {
+    width: 100%;
+    justify-content: center;
+    margin-top: 4px;
+}
+
+.auth-user-info {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+}
+
+.auth-user-email {
+    font-size: 13px;
+    color: var(--color-text-primary);
+    word-break: break-all;
+    text-align: center;
+}
+
+.auth-logout-btn {
+    width: 100%;
+    justify-content: center;
+}
+
+/* ── Kata Complete Tab ─────────────────────────────────────────────────────── */
+
+.kata-tab--complete {
+    margin-left: auto;
+    font-size: 12px;
+    color: var(--color-text-muted);
+}
+
+.kata-tab--complete:hover {
+    color: #3fb950;
+}
+
+.kata-tab--completed {
+    color: #3fb950;
+    border-bottom-color: #3fb950;
+}
+
+.kata-tab--completed:hover {
+    color: #3fb950;
+    opacity: 0.8;
+}
+
+/* ── Live Level Badge ──────────────────────────────────────────────────────── */
+
+.sidebar-group-label--live {
+    color: #f85149;
+}
+
+.level-badge--live {
+    background-color: color-mix(in srgb, #f85149 15%, transparent);
+    color: #f85149;
 }

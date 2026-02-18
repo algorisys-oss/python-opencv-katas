@@ -5,9 +5,9 @@ POST /api/auth/login    — verify credentials, return JWT
 """
 
 from datetime import datetime, timedelta
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Header
 from passlib.context import CryptContext
-from jose import jwt
+from jose import jwt, JWTError
 
 from backend.models.db import get_conn
 from backend.models.schemas import UserRegister, UserLogin, Token
@@ -72,3 +72,31 @@ def login(body: UserLogin):
         raise HTTPException(status_code=401, detail="Invalid email or password.")
 
     return Token(access_token=_make_token(row["id"], body.email))
+
+
+# ── Auth dependencies ────────────────────────────────────────────────────────
+
+def get_current_user(authorization: str = Header(...)) -> dict:
+    """Strict auth: raises 401 if token missing or invalid."""
+    try:
+        scheme, token = authorization.split(" ", 1)
+        if scheme.lower() != "bearer":
+            raise HTTPException(status_code=401, detail="Invalid auth scheme.")
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return {"user_id": int(payload["sub"]), "email": payload["email"]}
+    except (JWTError, ValueError, KeyError):
+        raise HTTPException(status_code=401, detail="Invalid or expired token.")
+
+
+def get_optional_user(authorization: str | None = Header(default=None)) -> dict | None:
+    """Lenient auth: returns None for anonymous users."""
+    if not authorization:
+        return None
+    try:
+        scheme, token = authorization.split(" ", 1)
+        if scheme.lower() != "bearer":
+            return None
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return {"user_id": int(payload["sub"]), "email": payload["email"]}
+    except (JWTError, ValueError, KeyError):
+        return None
