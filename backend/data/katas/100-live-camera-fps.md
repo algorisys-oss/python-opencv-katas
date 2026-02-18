@@ -220,6 +220,14 @@ This ensures the camera is released even if an exception occurs mid-loop.
 - If the camera feed appears laggy, reduce the resolution — `640x480` processes much faster than `1920x1080`.
 - On macOS, the first `cap.read()` after opening the camera may take a few seconds while the driver initializes. This is normal.
 
+## How to Test This Kata
+
+> **This is a live camera kata.** Click **"Run on Desktop"** in the Code tab — an OpenCV window will open on your desktop using your real webcam. Press **q** in the OpenCV window to quit.
+
+- Verify the camera feed appears and the green FPS counter in the top-left updates smoothly (expect 25-30 FPS on most webcams)
+- Check the resolution info displayed below the FPS counter matches your camera's capabilities
+- Wave your hand or move around to confirm the feed is live and not frozen
+
 ## Starter Code
 
 ```python

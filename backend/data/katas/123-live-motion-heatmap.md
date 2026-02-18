@@ -115,6 +115,14 @@ This is useful when you reposition the camera, change the scene, or want to star
 - If the heatmap looks pixelated or blocky, increase the Gaussian blur kernel size or dilate the thresholded difference before accumulating.
 - Normalize using the accumulator's actual max value, not a fixed value. A fixed normalization constant either clips hot zones or makes cold zones invisible.
 
+## How to Test This Kata
+
+> **This is a live camera kata.** Click **"Run on Desktop"** in the Code tab — an OpenCV window will open on your desktop using your real webcam. Press **q** in the OpenCV window to quit.
+
+- Wave your hand in front of the camera — you should see red/yellow hot zones appear where motion occurred, fading to blue and then disappearing over time
+- Check the "Active area" percentage display to confirm it increases during motion and decays when you stay still
+- Press **r** to reset the heatmap and verify the overlay clears completely
+
 ## Starter Code
 
 ```python

@@ -148,6 +148,15 @@ else:
 - The tracker does not know what it is tracking. It follows visual patterns, so if a similar-looking object crosses the target, the tracker may switch.
 - On older OpenCV versions (< 4.5), trackers are in `cv2.TrackerCSRT_create()`. On newer versions, some moved to `cv2.legacy`.
 
+## How to Test This Kata
+
+> **This is a live camera kata.** Click **"Run on Desktop"** in the Code tab — an OpenCV window will open on your desktop using your real webcam. Press **q** in the OpenCV window to quit.
+
+- Press **s** to pause the feed and draw a bounding box around any object — after confirming with Enter/Space, a green rectangle should track that object as it moves
+- Move the tracked object out of frame or occlude it — the status should change to "Tracking LOST" and prompt you to re-select
+- Press **c** to clear the tracker and return to the idle state
+- Check the FPS counter and state indicator in the top-left corner to confirm real-time performance
+
 ## Starter Code
 
 ```python

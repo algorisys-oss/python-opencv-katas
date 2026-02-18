@@ -232,6 +232,14 @@ Every eye coordinate `(ex, ey)` is relative to `face_upper`, which starts at `(f
 - The bridge line thickness should scale with sunglasses size. A fixed thickness looks wrong on very large or very small detections.
 - Creating the sunglasses image every frame is wasteful if the size has not changed. Cache the last size and only regenerate when dimensions change.
 
+## How to Test This Kata
+
+> **This is a live camera kata.** Click **"Run on Desktop"** in the Code tab — an OpenCV window will open on your desktop using your real webcam. Press **q** in the OpenCV window to quit.
+
+- Face the camera straight-on so both eyes are visible — dark elliptical sunglasses with a bridge should appear over your eyes
+- Move your head slowly side to side and up/down — the sunglasses should follow your face and scale with distance
+- Check the FPS and face count displayed in the top-left corner to confirm real-time performance
+
 ## Starter Code
 
 ```python

@@ -176,7 +176,7 @@ def draw_hist(gray_img, hist_h=100, color=(200, 200, 200)):
     cv2.normalize(hist, hist, 0, hist_h - 5, cv2.NORM_MINMAX)
     hist_canvas = np.zeros((hist_h, 256, 3), dtype=np.uint8)
     for x in range(256):
-        bar_h = int(hist[x])
+        bar_h = int(hist[x][0])
         if bar_h > 0:
             cv2.line(hist_canvas, (x, hist_h), (x, hist_h - bar_h), color, 1)
     return hist_canvas

@@ -176,6 +176,15 @@ Display the current thresholds on the frame so the user can see the sensitivity 
 - On laptops, the webcam indicator light turning on/off can cause a brief brightness change that triggers false alarms on the first few frames. Skip the first 10 frames or use a warm-up period.
 - Use the keyboard sensitivity adjustment to find the right threshold for your scene before settling on hardcoded values.
 
+## How to Test This Kata
+
+> **This is a live camera kata.** Click **"Run on Desktop"** in the Code tab — an OpenCV window will open on your desktop using your real webcam. Press **q** in the OpenCV window to quit.
+
+- Keep still for a moment — the motion percentage should stay near 0% with no alarm
+- Wave your hand or walk in front of the camera — red bounding boxes should appear around motion zones and the motion bar should rise
+- Move enough to exceed the alarm threshold — the border should flash red and "MOTION DETECTED!!" should appear
+- Press **'t'/'T'** to adjust the pixel difference threshold and **'a'/'A'** to raise or lower the alarm trigger percentage
+
 ## Starter Code
 
 ```python

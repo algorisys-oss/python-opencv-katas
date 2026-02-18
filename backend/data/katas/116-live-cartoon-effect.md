@@ -244,6 +244,15 @@ Using `d=5` instead of `d=9` is significantly faster with only a modest quality 
 - Use the original (unfiltered) frame for edge detection, not the bilateral-filtered version. Bilateral filtering already removes the edges you want to detect.
 - Adding keyboard controls for edge thickness and smoothing strength lets you tune the look interactively rather than restarting the program for each parameter change.
 
+## How to Test This Kata
+
+> **This is a live camera kata.** Click **"Run on Desktop"** in the Code tab — an OpenCV window will open on your desktop using your real webcam. Press **q** in the OpenCV window to quit.
+
+- With the effect on, you should see flat color regions with bold dark outlines giving a comic-book look
+- Press **c** to toggle the cartoon effect on and off — compare the raw camera feed to the cartoon version
+- Press **e** / **d** to make edge outlines thicker or thinner, and **s** / **a** to increase or decrease color smoothing
+- Check the FPS counter — bilateral filtering is expensive, so expect lower frame rates with higher smoothing iterations
+
 ## Starter Code
 
 ```python

@@ -187,6 +187,15 @@ The detector works on both grayscale and color images. Grayscale is slightly fas
 - Deduplication by content prevents the history list from filling up when the same code stays in frame for many seconds.
 - Motion blur is the biggest enemy of QR decoding. If the camera or the code is moving fast, the decode step often fails even when detection succeeds.
 
+## How to Test This Kata
+
+> **This is a live camera kata.** Click **"Run on Desktop"** in the Code tab — an OpenCV window will open on your desktop using your real webcam. Press **q** in the OpenCV window to quit.
+
+- Hold a QR code (from your phone or a printout) in front of the camera — a green polygon and decoded text should appear when successfully scanned
+- If the code is detected but too blurry to decode, you should see a yellow outline with a "DETECTED (move closer)" message
+- Check the scrolling history panel on the left — each unique QR code is listed with a number prefix
+- Press **r** to clear the scan history and start fresh
+
 ## Starter Code
 
 ```python

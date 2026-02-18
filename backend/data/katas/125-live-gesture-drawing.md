@@ -157,6 +157,15 @@ When the pen disappears, `prev_centroid` becomes `None`. When it reappears, the 
 - If your drawing looks laggy, the bottleneck is usually the color detection step. Resize the frame before HSV conversion and mask computation, then scale the centroid coordinates back up.
 - Mirror the frame (`cv2.flip(frame, 1)`) so the drawing feels natural -- moving your hand right draws right. Without flipping, the motion is reversed like looking in a mirror.
 
+## How to Test This Kata
+
+> **This is a live camera kata.** Click **"Run on Desktop"** in the Code tab — an OpenCV window will open on your desktop using your real webcam. Press **q** in the OpenCV window to quit.
+
+- Hold a bright green object and move it slowly — a colored line should be drawn on screen following the object's path, and the status should show "DRAWING"
+- Press **1** through **7** to switch drawing colors and **+**/**-** to change line thickness — verify the color palette at the top highlights the active selection
+- Press **c** to clear the canvas and **u** to undo the last stroke
+- Remove the object from view, then bring it back — a new stroke should start without connecting to the old position
+
 ## Starter Code
 
 ```python

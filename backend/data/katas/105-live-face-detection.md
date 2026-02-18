@@ -146,6 +146,14 @@ cv2.putText(frame, f"Faces: {count}", (10, 60),
 - `detectMultiScale` is CPU-bound. On multi-core systems, OpenCV may use threading internally, but you cannot control it directly.
 - Lighting matters significantly. Haar cascades struggle in very dark or heavily backlit scenes.
 
+## How to Test This Kata
+
+> **This is a live camera kata.** Click **"Run on Desktop"** in the Code tab — an OpenCV window will open on your desktop using your real webcam. Press **q** in the OpenCV window to quit.
+
+- Move your face into the frame — you should see a green bounding box labeled "Face 1" appear around it
+- Check the "Faces:" counter in the top-left updates correctly as people enter or leave the frame
+- Turn your head to a profile angle and note that the detection may drop (Haar cascades work best on frontal faces)
+
 ## Starter Code
 
 ```python

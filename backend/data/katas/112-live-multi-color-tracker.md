@@ -190,6 +190,14 @@ for target in color_targets:
 - When tracking fails for a color (no contour above threshold), append `None` to the trail. This creates gaps in the drawn trail rather than false connections.
 - Test each color individually first by temporarily commenting out the others. Once each works reliably, enable all of them together.
 
+## How to Test This Kata
+
+> **This is a live camera kata.** Click **"Run on Desktop"** in the Code tab — an OpenCV window will open on your desktop using your real webcam. Press **q** in the OpenCV window to quit.
+
+- Hold up a red, green, or blue object in front of the camera — you should see a labeled bounding box, centroid dot, and fading trail in the matching color
+- Check the status dashboard in the top-left showing "Tracking" or "Lost" for each color
+- Press **m** to cycle the mask preview (top-right corner) through each color's detection mask
+
 ## Starter Code
 
 ```python

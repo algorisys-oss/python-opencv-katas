@@ -185,6 +185,15 @@ cv2.rectangle(frame, (0, 0), (width, 5), status_color, -1)
 - `detectMultiScale` with `minNeighbors=3` produces many false positives. Use `minNeighbors=5` or higher for reliable results.
 - Increasing `scaleFactor` (e.g., from 1.1 to 1.3) makes face detection faster but may miss smaller faces.
 
+## How to Test This Kata
+
+> **This is a live camera kata.** Click **"Run on Desktop"** in the Code tab — an OpenCV window will open on your desktop using your real webcam. Press **q** in the OpenCV window to quit.
+
+- Wait for the "Initializing..." message to finish (about 1 second), then walk into frame — you should see green "MOTION" bounding boxes and blue "FACE" labels, with events logged to the console
+- Check that the top status bar turns red during motion and returns to green when the scene is still
+- Press **s** to save a snapshot (a timestamped PNG file) and **r** to reset the motion baseline
+- Verify the blinking red "REC" indicator and timestamp overlay are visible at the corners of the frame
+
 ## Starter Code
 
 ```python

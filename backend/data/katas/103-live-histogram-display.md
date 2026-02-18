@@ -88,7 +88,7 @@ def draw_histogram_lines(hist_b, hist_g, hist_r, width=256, height=200):
     for hist, color in [(hist_b, (255, 100, 0)), (hist_g, (0, 255, 0)), (hist_r, (0, 0, 255))]:
         points = []
         for x in range(width):
-            y = height - int(hist[x])
+            y = height - int(hist[x][0])
             points.append([x, y])
         points = np.array(points, dtype=np.int32)
         cv2.polylines(canvas, [points], False, color, 1, cv2.LINE_AA)
@@ -159,6 +159,15 @@ In practice, `cv2.calcHist` is highly optimized in C++ — even at full resoluti
 - On auto-exposure cameras, the histogram shifts constantly as the camera adjusts. Disable auto-exposure (`cap.set(cv2.CAP_PROP_AUTO_EXPOSURE, 0)`) for stable readings.
 - A spike at bin 0 or bin 255 means **clipping** — detail is lost in shadows or highlights.
 
+## How to Test This Kata
+
+> **This is a live camera kata.** Click **"Run on Desktop"** in the Code tab — an OpenCV window will open on your desktop using your real webcam. Press **q** in the OpenCV window to quit.
+
+- Verify the B, G, R histogram curves update in real-time in the right panel alongside the camera feed
+- Cover the camera lens with your hand — the histogram should shift heavily toward the left (low values) and the stats panel should show "UNDEREXPOSED"
+- Point the camera at a bright light or window — the histogram should shift right and may show "OVEREXPOSED"
+- Wave a brightly colored object in front of the camera and watch the corresponding channel spike in the histogram
+
 ## Starter Code
 
 ```python
@@ -194,7 +203,7 @@ def draw_histogram_lines(hist_b, hist_g, hist_r):
         cv2.line(canvas, (x_val, 0), (x_val, HIST_H), (40, 40, 40), 1)
 
     for hist, color in [(hist_b, (255, 100, 0)), (hist_g, (0, 220, 0)), (hist_r, (0, 0, 255))]:
-        pts = np.array([[x, HIST_H - int(hist[x])] for x in range(HIST_W)], dtype=np.int32)
+        pts = np.array([[x, HIST_H - int(hist[x][0])] for x in range(HIST_W)], dtype=np.int32)
         cv2.polylines(canvas, [pts], False, color, 1, cv2.LINE_AA)
 
     # Axis labels

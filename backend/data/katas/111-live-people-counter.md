@@ -204,6 +204,15 @@ cv2.putText(frame, f"Up: {count_up}", (10, LINE_Y + 30),
 - `cv2.createBackgroundSubtractorMOG2` creates a stateful object. Do not recreate it every frame — initialize it once and call `apply()` each frame.
 - The `learningRate` parameter of `apply()` controls how fast the background adapts. Use -1 (automatic) unless you have a specific reason to override.
 
+## How to Test This Kata
+
+> **This is a live camera kata.** Click **"Run on Desktop"** in the Code tab — an OpenCV window will open on your desktop using your real webcam. Press **q** in the OpenCV window to quit.
+
+- Wait for the warm-up period to complete (progress shown on screen) — the background model needs ~60 frames to stabilize before counting begins
+- Walk across the camera view crossing the yellow "COUNTING LINE" in the middle — the Up/Down counters should increment depending on your direction
+- Check that moving objects get green bounding boxes with numbered ID labels and red centroid dots
+- Look at the small mask preview in the top-right corner to verify the foreground detection is clean
+
 ## Starter Code
 
 ```python

@@ -194,6 +194,14 @@ This is a rough approximation. For more accuracy, convert both colors to LAB spa
 - The color name approximation using Euclidean distance in BGR space is imprecise. Brown and dark red look similar in BGR distance. For better results, convert to HSV or LAB before computing distances.
 - If the palette flickers between frames, consider averaging the palette over the last few frames or only updating every N frames.
 
+## How to Test This Kata
+
+> **This is a live camera kata.** Click **"Run on Desktop"** in the Code tab — an OpenCV window will open on your desktop using your real webcam. Press **q** in the OpenCV window to quit.
+
+- Point the camera at a colorful object (book cover, clothing, fruit) — you should see a color palette bar at the bottom and labeled swatches on the right showing dominant colors with percentages
+- Press **+** or **-** to increase or decrease the number of colors (K) and verify the palette updates accordingly
+- Check the FPS counter in the top-left corner to confirm real-time performance
+
 ## Starter Code
 
 ```python

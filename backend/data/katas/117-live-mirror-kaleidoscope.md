@@ -276,6 +276,14 @@ All mirror and kaleidoscope effects are extremely fast -- well under 2 ms total 
 - For the most visually interesting kaleidoscope patterns, position your face or an object near one edge of the frame rather than the center. The asymmetry of the source creates more complex symmetric patterns.
 - All these effects work on the raw pixel data with no color space conversion needed -- they operate directly on BGR frames.
 
+## How to Test This Kata
+
+> **This is a live camera kata.** Click **"Run on Desktop"** in the Code tab — an OpenCV window will open on your desktop using your real webcam. Press **q** in the OpenCV window to quit.
+
+- Press **n** to cycle forward through the five modes: Normal, H-Mirror, V-Mirror, Quad Kaleidoscope, and Triangle Kaleidoscope (press **p** to go backward)
+- In H-Mirror mode, move your face to one side of the frame — you should see a perfectly symmetric reflection
+- In Quad or Triangle Kaleidoscope mode, wave your hand near a corner of the frame to see mesmerizing repeating patterns
+
 ## Starter Code
 
 ```python

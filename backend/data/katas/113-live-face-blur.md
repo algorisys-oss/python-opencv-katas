@@ -150,6 +150,14 @@ The bottleneck is always the cascade detection. To improve FPS:
 - If false positives are a problem (random regions getting blurred), increase `minNeighbors` to 6 or 7.
 - For very strong privacy guarantees, use pixelation with `pixel_size <= 6` — Gaussian blur with moderate kernels has been shown to be partially reversible.
 
+## How to Test This Kata
+
+> **This is a live camera kata.** Click **"Run on Desktop"** in the Code tab — an OpenCV window will open on your desktop using your real webcam. Press **q** in the OpenCV window to quit.
+
+- Move your face into the camera view — it should be automatically blurred with a thin red border around the detected region
+- Press **b** to toggle between Gaussian blur and pixelation (mosaic) modes — the current mode is shown in the HUD
+- Press **+** / **-** to increase or decrease blur strength and verify the effect changes visibly
+
 ## Starter Code
 
 ```python

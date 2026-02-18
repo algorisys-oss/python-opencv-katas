@@ -127,6 +127,14 @@ If your FPS drops too low, remove the heaviest filter (`bilateralFilter`) or pro
 - For a 3x3 or larger grid, consider a helper function that takes a list of `(label, image)` tuples and builds the grid automatically.
 - `np.hstack` and `np.vstack` create a **new** array — they allocate memory each frame. For maximum performance, pre-allocate a canvas and copy views into it using slicing.
 
+## How to Test This Kata
+
+> **This is a live camera kata.** Click **"Run on Desktop"** in the Code tab — an OpenCV window will open on your desktop using your real webcam. Press **q** in the OpenCV window to quit.
+
+- Verify you see a 2x2 grid with labeled quadrants: Original, Grayscale, Gaussian Blur, and Canny Edges
+- Press **'n'** to switch to the second filter set (Threshold, Laplacian, HSV Hue Map) and press **'n'** again to cycle back
+- Check the FPS counter at the bottom-left to confirm smooth real-time performance
+
 ## Starter Code
 
 ```python

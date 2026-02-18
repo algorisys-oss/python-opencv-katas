@@ -230,6 +230,15 @@ else:
 - If the reference object is not detected reliably, try adjusting the Canny thresholds or placing it on a contrasting background (white card on dark surface, or vice versa).
 - Store the calibration value across frames. Recalibrating every frame would cause the measurements to fluctuate with detection noise.
 
+## How to Test This Kata
+
+> **This is a live camera kata.** Click **"Run on Desktop"** in the Code tab — an OpenCV window will open on your desktop using your real webcam. Press **q** in the OpenCV window to quit.
+
+- Place a credit card (8.56 cm wide) on the left side of a flat surface in view — it should be highlighted in yellow and labeled "REFERENCE?"
+- Press **c** to calibrate — the status should change to "Calibrated" with a px/cm value, and other objects in view should display their dimensions in centimeters
+- Press **r** to reset calibration and verify it returns to "NOT CALIBRATED" mode
+- Check the edge detection preview in the top-right corner to confirm clean contour detection
+
 ## Starter Code
 
 ```python

@@ -239,6 +239,14 @@ MOG2 needs several frames to build an accurate background model. During the firs
 - `detectShadows=True` adds approximately 10% processing time. Disable it if performance is critical and you handle shadows via thresholding anyway.
 - The `varThreshold` parameter has the most impact on mask quality. Experiment with values between 20 and 80 to find the best setting for your specific lighting environment.
 
+## How to Test This Kata
+
+> **This is a live camera kata.** Click **"Run on Desktop"** in the Code tab — an OpenCV window will open on your desktop using your real webcam. Press **q** in the OpenCV window to quit.
+
+- Wait for the "Learning background" progress indicator to reach 100% before stepping into frame — keep the camera still during this phase
+- Press **m** to cycle through modes: Original, Mask View, Green Screen, and Gradient BG — verify each mode displays correctly
+- Press **r** to reset the background model (useful if you rearranged objects or moved the camera)
+
 ## Starter Code
 
 ```python

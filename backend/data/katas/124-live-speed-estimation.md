@@ -146,6 +146,14 @@ if displacement_px < 3:  # Less than 3 pixels of movement = stationary
 - For objects that move very fast (large displacement per frame), the centroid might jump erratically if the object blurs or leaves the frame. Cap the maximum speed display value to avoid nonsensical readings.
 - HSV hue wraps around at 180 in OpenCV. Red spans both `0-10` and `170-180`. Use two `inRange` calls and combine with `cv2.bitwise_or` if tracking red.
 
+## How to Test This Kata
+
+> **This is a live camera kata.** Click **"Run on Desktop"** in the Code tab — an OpenCV window will open on your desktop using your real webcam. Press **q** in the OpenCV window to quit.
+
+- Hold a bright green object in front of the camera — you should see a yellow centroid marker appear on it with a trailing path
+- Move the object slowly, then quickly — the "Speed" readout (in px/s) should increase with faster movement and the color should change from green (slow) to orange to red (fast)
+- Keep the object still — the speed should drop to 0 px/s, confirming the minimum displacement threshold is working
+
 ## Starter Code
 
 ```python

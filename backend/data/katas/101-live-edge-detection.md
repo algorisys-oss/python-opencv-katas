@@ -156,6 +156,14 @@ Larger aperture sizes detect broader edges but are slower. Must be 3, 5, or 7.
 - The combined display (side-by-side) doubles the window width — resize if your screen is small.
 - On low-end hardware, adding Gaussian blur before Canny may reduce total FPS. Profile before adding.
 
+## How to Test This Kata
+
+> **This is a live camera kata.** Click **"Run on Desktop"** in the Code tab — an OpenCV window will open on your desktop using your real webcam. Press **q** in the OpenCV window to quit.
+
+- Drag the **Thresh1** and **Thresh2** trackbars and observe edges appearing or disappearing in real-time
+- Drag the **Blur** trackbar to increase pre-blur and see noisy false edges get suppressed
+- Switch the **Mode** trackbar between 0 (side-by-side), 1 (edges only), and 2 (green overlay) to see three different visualization styles
+
 ## Starter Code
 
 ```python

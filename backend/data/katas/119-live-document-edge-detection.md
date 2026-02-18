@@ -221,6 +221,14 @@ if doc_contour is not None:
 - If the document has a dark border on a dark background (e.g., a dark phone screen on a dark desk), Canny will not find the edge. Ensure contrast between the document and the surface.
 - Gaussian blur kernel size must be odd. Use `(5, 5)` as default, increase to `(7, 7)` for noisier cameras.
 
+## How to Test This Kata
+
+> **This is a live camera kata.** Click **"Run on Desktop"** in the Code tab — an OpenCV window will open on your desktop using your real webcam. Press **q** in the OpenCV window to quit.
+
+- Place a document (paper, book, or card) on a contrasting surface in front of the camera — a colored polygon overlay should snap to its edges
+- Hold the camera steady — the overlay changes from yellow ("Hold steady...") to green ("READY") as the stability progress bar fills up
+- When the overlay turns green, press **c** to capture — a new window shows the perspective-corrected document scan
+
 ## Starter Code
 
 ```python

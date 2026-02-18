@@ -72,7 +72,7 @@ cv2.normalize(hist, hist, 0, 300, cv2.NORM_MINMAX)
 for x in range(256):
     cv2.line(hist_img,
              (x, 300),                    # bottom point
-             (x, 300 - int(hist[x])),     # top point
+             (x, 300 - int(hist[x][0])),   # top point
              (255, 255, 255),             # color (white)
              1)                           # thickness
 ```
@@ -168,7 +168,7 @@ def draw_histogram(gray_img, hist_h=200, color=(255, 255, 255)):
 
     # Draw bars
     for x in range(256):
-        bar_height = int(hist[x])
+        bar_height = int(hist[x][0])
         if bar_height > 0:
             cv2.line(hist_img, (x, hist_h), (x, hist_h - bar_height), color, 1)
 

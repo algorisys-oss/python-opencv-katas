@@ -191,6 +191,15 @@ The defect distance (depth of the valley) also helps:
 - The wrist area produces large defects with wide angles. The angle filter (< 90 degrees) is essential to avoid counting the wrist as finger gaps.
 - Background objects matching skin color (wooden desk, beige wall) will confuse the detector. Use a non-skin-colored background or add a region of interest.
 
+## How to Test This Kata
+
+> **This is a live camera kata.** Click **"Run on Desktop"** in the Code tab — an OpenCV window will open on your desktop using your real webcam. Press **q** in the OpenCV window to quit.
+
+- Hold your open hand up in front of the camera against a non-skin-colored background — you should see a green contour and yellow convex hull drawn around your hand
+- Spread your fingers and check that the large finger count number updates (red dots mark the valleys between fingers)
+- Close your fist and verify the count drops to 1; gradually raise fingers one at a time to confirm the count increments
+- Check the skin mask preview in the top-right corner — your hand should appear as a clean white region
+
 ## Starter Code
 
 ```python

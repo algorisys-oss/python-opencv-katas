@@ -154,6 +154,14 @@ mask = cv2.inRange(hsv_frame, lower, upper)
 - HSV hue wraps around: red appears at both H≈0 and H≈179. If your detected color is red, you may need two `inRange` calls.
 - The color swatch should use BGR values directly (OpenCV's native format), not RGB.
 
+## How to Test This Kata
+
+> **This is a live camera kata.** Click **"Run on Desktop"** in the Code tab — an OpenCV window will open on your desktop using your real webcam. Press **q** in the OpenCV window to quit.
+
+- Move your mouse over the camera feed — a crosshair should follow, and the BGR/HSV values at the bottom should update live
+- Click on a colored object — a yellow circle marks the picked point and a color swatch with BGR/HSV values appears in the top-right corner
+- Click on several different colored objects and confirm the swatch updates each time with accurate color values
+
 ## Starter Code
 
 ```python

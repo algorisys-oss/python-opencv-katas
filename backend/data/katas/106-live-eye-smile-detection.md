@@ -174,6 +174,14 @@ Nested detection multiplies the cost: for N faces, you run the eye and smile det
 - Drawing on the ROI slice directly modifies the original frame (NumPy views). This is fine for visualization but be aware if you need the unmodified frame later.
 - Processing time scales with the number of faces. In a crowded scene, consider limiting detection to the first 3-4 faces.
 
+## How to Test This Kata
+
+> **This is a live camera kata.** Click **"Run on Desktop"** in the Code tab — an OpenCV window will open on your desktop using your real webcam. Press **q** in the OpenCV window to quit.
+
+- Move your face into the frame — you should see a green rectangle around your face and blue circles on each detected eye
+- Smile broadly — an orange "Smiling!" label and orange rectangle should appear around your mouth area
+- Check the top-left counters for Faces, Eyes, and Smiles and verify they update as you change expression
+
 ## Starter Code
 
 ```python

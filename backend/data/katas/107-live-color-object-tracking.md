@@ -172,6 +172,15 @@ Display the current HSV range on the frame so you can see what values you are us
 - A GaussianBlur before HSV conversion reduces noise and makes the mask cleaner: `frame = cv2.GaussianBlur(frame, (11, 11), 0)`.
 - Webcam auto-exposure and auto-white-balance can shift colors between frames. Consider disabling auto settings for more stable detection.
 
+## How to Test This Kata
+
+> **This is a live camera kata.** Click **"Run on Desktop"** in the Code tab — an OpenCV window will open on your desktop using your real webcam. Press **q** in the OpenCV window to quit.
+
+- Hold a brightly colored object (e.g., a green ball or marker) in front of the camera — you should see a contour outline, bounding circle, and red centroid dot appear on it
+- Move the object around and confirm a fading yellow trail follows its path
+- Use the keyboard keys **1-8** to adjust HSV thresholds if the object is not detected, and press **'r'** to reset to defaults
+- Check the mask preview in the top-left corner — the tracked object should appear as a clean white blob on black background
+
 ## Starter Code
 
 ```python
