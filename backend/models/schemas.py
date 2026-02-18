@@ -32,6 +32,7 @@ class KataDetail(BaseModel):
 
 class ExecuteRequest(BaseModel):
     code: str
+    local: bool = False  # True = run on desktop with real camera (no sandbox)
 
 
 class ExecuteResult(BaseModel):

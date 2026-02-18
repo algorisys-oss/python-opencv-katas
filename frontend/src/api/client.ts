@@ -8,7 +8,7 @@ export interface KataListItem {
     id: number;
     slug: string;
     title: string;
-    level: "beginner" | "intermediate" | "advanced";
+    level: "beginner" | "intermediate" | "advanced" | "live";
     concepts: string[];
 }
 
@@ -53,10 +53,15 @@ export const api = {
 
     getKata: (slug: string) => request<KataDetail>(`/katas/${slug}`),
 
-    executeCode: (code: string) =>
+    executeCode: (code: string, local: boolean = false) =>
         request<ExecuteResult>("/execute", {
             method: "POST",
-            body: JSON.stringify({ code }),
+            body: JSON.stringify({ code, local }),
+        }),
+
+    stopExecution: () =>
+        request<{ stopped: boolean; message: string }>("/execute/stop", {
+            method: "POST",
         }),
 
     login: (email: string, password: string) =>

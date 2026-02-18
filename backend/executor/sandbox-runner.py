@@ -37,6 +37,97 @@ cv2.imshow = _capture_imshow
 cv2.waitKey = lambda _=0: 0
 cv2.destroyAllWindows = lambda: None
 cv2.destroyWindow = lambda _: None
+cv2.namedWindow = lambda *a, **kw: None
+cv2.createTrackbar = lambda *a, **kw: None
+cv2.getTrackbarPos = lambda name, *a, **kw: 100
+cv2.setMouseCallback = lambda *a, **kw: None
+
+
+# ── Fake VideoCapture for live camera katas ──────────────────────────────────
+# In the sandbox there is no real camera. This fake class returns synthetic
+# frames so that live-camera starter code runs without hanging.
+
+_REAL_VIDEO_CAPTURE = cv2.VideoCapture
+
+
+class _SandboxVideoCapture:
+    """Drop-in replacement for cv2.VideoCapture that produces synthetic frames."""
+
+    _MAX_FRAMES = 30  # Stop after this many frames to avoid timeout
+
+    def __init__(self, source=0):
+        self._frame_count = 0
+        self._width = 640
+        self._height = 480
+        self._fps = 30.0
+        self._opened = True
+        # If source is a string (file path), try real VideoCapture
+        if isinstance(source, str):
+            self._real = _REAL_VIDEO_CAPTURE(source)
+            self._use_real = self._real.isOpened()
+        else:
+            self._real = None
+            self._use_real = False
+
+    def isOpened(self):
+        if self._use_real:
+            return self._real.isOpened()
+        return self._opened
+
+    def read(self):
+        if self._use_real:
+            return self._real.read()
+        if self._frame_count >= self._MAX_FRAMES:
+            if self._frame_count == self._MAX_FRAMES:
+                print(f"[Sandbox] Completed {self._MAX_FRAMES} frames. "
+                      "Live camera katas should be tested locally with a real camera.")
+                self._frame_count += 1  # Only print once
+            return False, None
+        self._frame_count += 1
+        # Generate a synthetic frame with moving content
+        frame = np.zeros((self._height, self._width, 3), dtype=np.uint8)
+        frame[:] = (40, 35, 30)
+        # Moving circle to simulate motion
+        t = self._frame_count
+        cx = int(self._width * (0.3 + 0.4 * np.sin(t * 0.2)))
+        cy = int(self._height * (0.3 + 0.2 * np.cos(t * 0.15)))
+        cv2.circle(frame, (cx, cy), 40, (0, 180, 255), -1)
+        # Frame counter text
+        cv2.putText(frame, f"Sandbox frame {t}/{self._MAX_FRAMES}",
+                    (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+        cv2.putText(frame, "No real camera in sandbox", (10, self._height - 20),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (150, 150, 150), 1)
+        return True, frame
+
+    def get(self, prop_id):
+        if self._use_real:
+            return self._real.get(prop_id)
+        if prop_id == cv2.CAP_PROP_FRAME_WIDTH:
+            return float(self._width)
+        elif prop_id == cv2.CAP_PROP_FRAME_HEIGHT:
+            return float(self._height)
+        elif prop_id == cv2.CAP_PROP_FPS:
+            return self._fps
+        return 0.0
+
+    def set(self, prop_id, value):
+        if self._use_real:
+            return self._real.set(prop_id, value)
+        if prop_id == cv2.CAP_PROP_FRAME_WIDTH:
+            self._width = int(value)
+        elif prop_id == cv2.CAP_PROP_FRAME_HEIGHT:
+            self._height = int(value)
+        elif prop_id == cv2.CAP_PROP_FPS:
+            self._fps = value
+        return True
+
+    def release(self):
+        if self._use_real and self._real:
+            self._real.release()
+        self._opened = False
+
+
+cv2.VideoCapture = _SandboxVideoCapture
 
 # ── Read user code ────────────────────────────────────────────────────────────
 

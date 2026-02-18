@@ -1,18 +1,24 @@
 """
 sandbox.py — Orchestrates safe subprocess execution of user code.
 
-Writes user code to a temp file, runs sandbox-runner.py as a subprocess
-with a timeout, and parses the output.
+Two execution modes:
+1. Sandboxed (default) — monkey-patched cv2, 10s timeout, captures images
+2. Local — runs code directly on the desktop with real camera access
 """
 
 import subprocess
 import tempfile
 import os
 import sys
+import threading
 from pathlib import Path
 
 RUNNER_PATH = Path(__file__).parent / "sandbox-runner.py"
 TIMEOUT_SECONDS = 10
+
+# Track active local processes so we can stop them
+_active_local_process: subprocess.Popen | None = None
+_active_local_lock = threading.Lock()
 
 
 def run_code(code: str) -> dict:
@@ -87,6 +93,86 @@ def run_code(code: str) -> dict:
             os.unlink(tmp_path)
         except OSError:
             pass
+
+
+def run_local(code: str) -> dict:
+    """
+    Run code directly on the desktop with real camera, real cv2.imshow,
+    and no timeout. Used for live camera katas.
+
+    The process runs in the background — this function returns immediately.
+    The OpenCV window appears on the user's desktop.
+    """
+    global _active_local_process
+
+    # Stop any previously running local process
+    stop_local()
+
+    # Write code to a temp file (not auto-deleted — process needs it)
+    tmp = tempfile.NamedTemporaryFile(
+        mode="w", suffix=".py", delete=False, prefix="kata_live_"
+    )
+    tmp.write(code)
+    tmp_path = tmp.name
+    tmp.close()
+
+    try:
+        proc = subprocess.Popen(
+            [sys.executable, "-u", tmp_path],
+        )
+
+        with _active_local_lock:
+            _active_local_process = proc
+
+        # Clean up temp file after process ends (in a background thread)
+        def _cleanup():
+            proc.wait()
+            with _active_local_lock:
+                global _active_local_process
+                if _active_local_process is proc:
+                    _active_local_process = None
+            try:
+                os.unlink(tmp_path)
+            except OSError:
+                pass
+
+        threading.Thread(target=_cleanup, daemon=True).start()
+
+        return {
+            "image_b64": None,
+            "logs": "Running on your desktop — an OpenCV window should appear.\n"
+                    "Press 'q' in the OpenCV window to quit.",
+            "error": "",
+        }
+
+    except Exception as e:
+        try:
+            os.unlink(tmp_path)
+        except OSError:
+            pass
+        return {
+            "image_b64": None,
+            "logs": "",
+            "error": f"Failed to launch: {e}",
+        }
+
+
+def stop_local() -> dict:
+    """Stop the currently running local process (if any)."""
+    global _active_local_process
+    with _active_local_lock:
+        proc = _active_local_process
+        _active_local_process = None
+
+    if proc and proc.poll() is None:
+        proc.terminate()
+        try:
+            proc.wait(timeout=3)
+        except subprocess.TimeoutExpired:
+            proc.kill()
+        return {"stopped": True, "message": "Local process stopped."}
+
+    return {"stopped": False, "message": "No local process was running."}
 
 
 def _make_friendly_error(raw: str) -> str:
