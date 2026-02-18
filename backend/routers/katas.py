@@ -17,7 +17,7 @@ def list_katas():
     """Return all katas as a summary list (id, slug, title, level, concepts)."""
     conn = get_conn()
     rows = conn.execute(
-        "SELECT id, slug, title, level, concepts FROM katas ORDER BY id"
+        "SELECT id, slug, title, level, concepts FROM katas ORDER BY slug"
     ).fetchall()
     conn.close()
     return [

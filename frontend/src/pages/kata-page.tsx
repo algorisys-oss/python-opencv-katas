@@ -3,7 +3,7 @@
  * Code tab supports: maximize editor, maximize output, open output in new tab.
  */
 
-import { Component, createSignal, createResource, Show } from "solid-js";
+import { Component, createSignal, createResource, createEffect, Show } from "solid-js";
 import { useParams } from "@solidjs/router";
 import { api } from "../api/client";
 import type { ExecuteResult } from "../api/client";
@@ -26,6 +26,15 @@ const KataPage: Component = () => {
     const [focus, setFocus] = createSignal<PanelFocus>("split");
 
     const starterCode = () => kata()?.starter_code ?? "";
+
+    // Reset state when navigating to a different kata
+    createEffect(() => {
+        params.slug; // track slug changes
+        setCode("");
+        setResult(null);
+        setRunning(false);
+        setFocus("split");
+    });
 
     const handleReset = () => {
         setCode(starterCode());
