@@ -1,0 +1,704 @@
+/* =============================================================================
+   components.css — All component-level CSS classes.
+   Uses CSS custom properties defined in index.css @theme.
+   No inline styles anywhere — all styling via classes.
+   ============================================================================= */
+
+/* ── App Layout ────────────────────────────────────────────────────────────── */
+
+.app-layout {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+    background-color: var(--color-bg-base);
+}
+
+.app-main {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ── Sidebar ────────────────────────────────────────────────────────────────── */
+
+.sidebar {
+    width: 260px;
+    min-width: 260px;
+    background-color: var(--color-bg-surface);
+    border-right: 1px solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 18px 16px;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.sidebar-logo {
+    font-size: 20px;
+}
+
+.sidebar-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    letter-spacing: -0.01em;
+}
+
+.sidebar-nav {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px 0;
+}
+
+.sidebar-loading {
+    width: 260px;
+    min-width: 260px;
+    background-color: var(--color-bg-surface);
+    border-right: 1px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text-muted);
+    font-size: 13px;
+}
+
+.sidebar-group {
+    margin-bottom: 8px;
+}
+
+.sidebar-group-label {
+    padding: 6px 16px 4px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.sidebar-group-label--beginner {
+    color: var(--color-level-beginner);
+}
+
+.sidebar-group-label--intermediate {
+    color: var(--color-level-intermediate);
+}
+
+.sidebar-group-label--advanced {
+    color: var(--color-level-advanced);
+}
+
+.sidebar-item {
+    display: block;
+    padding: 8px 16px;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    transition: background-color 0.15s, border-color 0.15s;
+    cursor: pointer;
+}
+
+.sidebar-item:hover {
+    background-color: var(--color-bg-elevated);
+}
+
+.sidebar-item--active {
+    background-color: var(--color-bg-elevated);
+    border-left-color: var(--color-accent);
+}
+
+.sidebar-item-title {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-text-primary);
+    margin-bottom: 4px;
+}
+
+.sidebar-item--active .sidebar-item-title {
+    color: var(--color-accent);
+}
+
+.sidebar-item-concepts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.concept-tag {
+    font-size: 10px;
+    font-family: var(--font-mono);
+    color: var(--color-text-muted);
+    background-color: var(--color-bg-base);
+    padding: 1px 5px;
+    border-radius: 3px;
+}
+
+/* ── Kata Header ────────────────────────────────────────────────────────────── */
+
+.kata-header {
+    padding: 20px 24px 0;
+    border-bottom: 1px solid var(--color-border);
+    background-color: var(--color-bg-surface);
+}
+
+.kata-header-top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.kata-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    letter-spacing: -0.02em;
+}
+
+.level-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 20px;
+    text-transform: capitalize;
+    letter-spacing: 0.02em;
+}
+
+.level-badge--beginner {
+    background-color: color-mix(in srgb, var(--color-level-beginner) 15%, transparent);
+    color: var(--color-level-beginner);
+}
+
+.level-badge--intermediate {
+    background-color: color-mix(in srgb, var(--color-level-intermediate) 15%, transparent);
+    color: var(--color-level-intermediate);
+}
+
+.level-badge--advanced {
+    background-color: color-mix(in srgb, var(--color-level-advanced) 15%, transparent);
+    color: var(--color-level-advanced);
+}
+
+.kata-concepts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding-bottom: 14px;
+}
+
+.concept-chip {
+    font-size: 12px;
+    background-color: var(--color-bg-elevated);
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    padding: 2px 8px;
+    color: var(--color-accent);
+}
+
+.concept-chip code {
+    font-family: var(--font-mono);
+    font-size: 12px;
+}
+
+/* ── Kata Tabs ──────────────────────────────────────────────────────────────── */
+
+.kata-tabs {
+    display: flex;
+    gap: 0;
+    padding: 0 24px;
+    background-color: var(--color-bg-surface);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.kata-tab {
+    padding: 10px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s;
+    margin-bottom: -1px;
+}
+
+.kata-tab:hover {
+    color: var(--color-text-primary);
+}
+
+.kata-tab--active {
+    color: var(--color-accent);
+    border-bottom-color: var(--color-accent);
+}
+
+.kata-tab-content {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ── Kata Page States ────────────────────────────────────────────────────────── */
+
+.kata-page {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.kata-loading,
+.kata-error {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--color-text-secondary);
+    font-size: 14px;
+}
+
+.kata-error {
+    color: var(--color-error);
+}
+
+/* ── Demo Panel ─────────────────────────────────────────────────────────────── */
+
+.demo-panel {
+    padding: 24px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+/* ── Kata Markdown Renderer ─────────────────────────────────────────────────── */
+
+.kata-markdown {
+    color: var(--color-text-secondary);
+    font-size: 14px;
+    line-height: 1.75;
+    max-width: 720px;
+}
+
+.kata-markdown h2 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    margin: 28px 0 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--color-border);
+    letter-spacing: -0.01em;
+}
+
+.kata-markdown h2:first-child {
+    margin-top: 0;
+}
+
+.kata-markdown h3 {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin: 20px 0 8px;
+}
+
+.kata-markdown p {
+    margin: 0 0 14px;
+}
+
+.kata-markdown ul,
+.kata-markdown ol {
+    margin: 0 0 14px;
+    padding-left: 22px;
+}
+
+.kata-markdown li {
+    margin-bottom: 6px;
+}
+
+.kata-markdown code {
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    background-color: var(--color-bg-elevated);
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    padding: 1px 5px;
+    color: var(--color-accent);
+}
+
+.kata-markdown pre {
+    background-color: var(--color-bg-base);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    padding: 16px;
+    overflow-x: auto;
+    margin: 0 0 16px;
+}
+
+.kata-markdown pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    color: var(--color-text-primary);
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.kata-markdown blockquote {
+    border-left: 3px solid var(--color-accent);
+    margin: 0 0 14px;
+    padding: 8px 16px;
+    background-color: color-mix(in srgb, var(--color-accent) 6%, transparent);
+    border-radius: 0 6px 6px 0;
+    color: var(--color-text-secondary);
+}
+
+.kata-markdown blockquote p {
+    margin: 0;
+}
+
+.kata-markdown table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0 0 16px;
+    font-size: 13px;
+}
+
+.kata-markdown th {
+    text-align: left;
+    padding: 8px 12px;
+    background-color: var(--color-bg-elevated);
+    border: 1px solid var(--color-border);
+    color: var(--color-text-primary);
+    font-weight: 600;
+}
+
+.kata-markdown td {
+    padding: 8px 12px;
+    border: 1px solid var(--color-border);
+    color: var(--color-text-secondary);
+}
+
+.kata-markdown tr:nth-child(even) td {
+    background-color: color-mix(in srgb, var(--color-bg-elevated) 40%, transparent);
+}
+
+.kata-markdown strong {
+    color: var(--color-text-primary);
+    font-weight: 600;
+}
+
+/* ── Code Layout ────────────────────────────────────────────────────────────── */
+
+.kata-code-layout {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    gap: 0;
+}
+
+/* Maximize editor: output pane hidden */
+.kata-code-layout--editor-max .kata-output-pane {
+    display: none;
+}
+
+/* Maximize output: editor pane hidden */
+.kata-code-layout--output-max .kata-editor-pane {
+    display: none;
+}
+
+/* When output is maximized, output pane fills the space */
+.kata-code-layout--output-max .kata-output-pane {
+    flex: 1;
+}
+
+.kata-editor-pane {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--color-border);
+    min-width: 0;
+}
+
+.kata-output-pane {
+    display: flex;
+    flex-direction: column;
+    width: 380px;
+    min-width: 280px;
+    background-color: var(--color-bg-surface);
+    overflow: hidden;
+}
+
+.kata-editor-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 16px;
+    background-color: var(--color-bg-elevated);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.kata-editor-filename {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--color-text-muted);
+}
+
+.kata-editor-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.kata-output-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 12px;
+    background-color: var(--color-bg-elevated);
+    border-bottom: 1px solid var(--color-border);
+    min-height: 37px;
+}
+
+.kata-output-toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.kata-output-toolbar-actions {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+.code-editor-container {
+    flex: 1;
+    min-height: 0;
+}
+
+/* ── Buttons ────────────────────────────────────────────────────────────────── */
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: background-color 0.15s, border-color 0.15s, opacity 0.15s;
+    font-family: var(--font-sans);
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn--primary {
+    background-color: var(--color-accent);
+    color: #0d1117;
+    border-color: var(--color-accent);
+}
+
+.btn--primary:hover:not(:disabled) {
+    background-color: var(--color-accent-hover);
+    border-color: var(--color-accent-hover);
+}
+
+.btn--ghost {
+    background-color: transparent;
+    color: var(--color-text-secondary);
+    border-color: var(--color-border);
+}
+
+.btn--ghost:hover:not(:disabled) {
+    background-color: var(--color-bg-hover);
+    color: var(--color-text-primary);
+}
+
+/* Icon-only button: compact, no label */
+.btn--icon {
+    background-color: transparent;
+    color: var(--color-text-muted);
+    border-color: transparent;
+    padding: 4px 7px;
+    font-size: 15px;
+    line-height: 1;
+    border-radius: 5px;
+}
+
+.btn--icon:hover {
+    background-color: var(--color-bg-hover);
+    color: var(--color-text-primary);
+    border-color: var(--color-border);
+}
+
+.btn--icon-active {
+    background-color: color-mix(in srgb, var(--color-accent) 15%, transparent);
+    color: var(--color-accent);
+    border-color: color-mix(in srgb, var(--color-accent) 30%, transparent);
+}
+
+.btn--icon-active:hover {
+    background-color: color-mix(in srgb, var(--color-accent) 25%, transparent);
+    color: var(--color-accent);
+}
+
+/* ── Output Panel ───────────────────────────────────────────────────────────── */
+
+.output-panel {
+    width: 380px;
+    min-width: 280px;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--color-bg-surface);
+    overflow: hidden;
+}
+
+.output-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 16px;
+    background-color: var(--color-bg-elevated);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.output-panel-title {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-text-muted);
+}
+
+.output-loading-badge {
+    font-size: 11px;
+    color: var(--color-accent);
+    animation: pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.4;
+    }
+}
+
+.output-panel-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.output-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: 12px;
+    color: var(--color-text-muted);
+}
+
+.output-empty-icon {
+    font-size: 28px;
+    opacity: 0.3;
+}
+
+.output-empty-text {
+    font-size: 13px;
+    text-align: center;
+    line-height: 1.5;
+}
+
+.output-image-wrapper {
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    background-color: var(--color-bg-base);
+}
+
+.output-image {
+    display: block;
+    width: 100%;
+    height: auto;
+    image-rendering: pixelated;
+}
+
+.output-no-image {
+    font-size: 13px;
+    color: var(--color-text-muted);
+    background-color: var(--color-bg-elevated);
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    padding: 12px;
+    line-height: 1.6;
+}
+
+.output-no-image code {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--color-accent);
+}
+
+.output-logs-label,
+.output-error-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 6px;
+}
+
+.output-logs-label {
+    color: var(--color-text-muted);
+}
+
+.output-error-label {
+    color: var(--color-error);
+}
+
+.output-logs-content,
+.output-error-content {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+    background-color: var(--color-bg-base);
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    padding: 10px 12px;
+}
+
+.output-logs-content {
+    color: var(--color-text-secondary);
+}
+
+.output-error-content {
+    color: var(--color-error);
+    border-color: color-mix(in srgb, var(--color-error) 30%, transparent);
+    background-color: color-mix(in srgb, var(--color-error) 5%, transparent);
+}

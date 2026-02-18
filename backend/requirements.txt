@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+opencv-python-headless
+numpy
+python-jose[cryptography]
+passlib[bcrypt]
+python-multipart
+email-validator
+python-frontmatter
