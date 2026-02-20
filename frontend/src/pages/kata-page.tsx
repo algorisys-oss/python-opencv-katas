@@ -32,6 +32,7 @@ const KataPage: Component = () => {
     const [saving, setSaving] = createSignal(false);
     const [saveMsg, setSaveMsg] = createSignal("");
     const [completed, setCompleted] = createSignal(false);
+    const [uploadFile, setUploadFile] = createSignal<File | null>(null);
 
     const starterCode = () => kata()?.starter_code ?? "";
     const isLive = () => kata()?.level === "live";
@@ -72,6 +73,7 @@ const KataPage: Component = () => {
         setCode(starterCode());
         setResult(null);
         setSaveMsg("");
+        setUploadFile(null);
     };
 
     const handleSave = async () => {
@@ -114,7 +116,7 @@ const KataPage: Component = () => {
         setResult(null);
         try {
             const local = isLive();
-            const res = await api.executeCode(code(), local);
+            const res = await api.executeCode(code(), local, uploadFile());
             setResult(res);
             if (local) {
                 setLocalRunning(true);
@@ -224,6 +226,12 @@ const KataPage: Component = () => {
                                         <div class="kata-editor-toolbar">
                                             <span class="kata-editor-filename">kata.py</span>
                                             <div class="kata-editor-actions">
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    onChange={(e) => setUploadFile(e.currentTarget.files?.[0] ?? null)}
+                                                    title="Upload an image for cv2.imread('filename')"
+                                                />
                                                 <button class="btn btn--ghost" onClick={handleReset} title="Reset to starter code">
                                                     Reset
                                                 </button>
