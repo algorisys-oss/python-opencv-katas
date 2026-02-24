@@ -76,10 +76,9 @@ export const api = {
 
     getKata: (slug: string) => request<KataDetail>(`/katas/${slug}`),
 
-    executeCode: async (code: string, local: boolean = false, image: File | null = null) => {
+    executeCode: async (code: string, image: File | null = null) => {
         const formData = new FormData();
         formData.append("code", code);
-        formData.append("local", String(local));
         if (image) {
             formData.append("image", image, image.name);
         }

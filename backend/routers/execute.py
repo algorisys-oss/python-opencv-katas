@@ -4,6 +4,8 @@ POST /api/execute — run user code (sandboxed or locally).
 POST /api/execute/stop — stop a running local process.
 """
 
+import code
+
 from fastapi import APIRouter, File, Form, UploadFile
 from backend.models.schemas import ExecuteResult
 from backend.executor.sandbox import run_code, run_local, stop_local
@@ -27,7 +29,8 @@ async def execute_code(
     if image is not None and image.filename:
         uploaded_files.append((image.filename, await image.read()))
 
-    if local:
+    # Auto detect webcam usage
+    if "cv2.VideoCapture" in code:
         result = run_local(code, uploaded_files)
     else:
         result = run_code(code, uploaded_files)
