@@ -76,11 +76,30 @@ export const api = {
 
     getKata: (slug: string) => request<KataDetail>(`/katas/${slug}`),
 
-    executeCode: (code: string, local: boolean = false) =>
-        request<ExecuteResult>("/execute", {
+    executeCode: async (code: string, image: File | null = null) => {
+        const formData = new FormData();
+        formData.append("code", code);
+        if (image) {
+            formData.append("image", image, image.name);
+        }
+
+        const token = localStorage.getItem("auth_token");
+        const headers: Record<string, string> = {};
+        if (token) {
+            headers["Authorization"] = `Bearer ${token}`;
+        }
+
+        const res = await fetch(`${BASE}/execute`, {
             method: "POST",
-            body: JSON.stringify({ code, local }),
-        }),
+            headers,
+            body: formData,
+        });
+        if (!res.ok) {
+            const body = await res.json().catch(() => ({}));
+            throw new Error(body.detail ?? `HTTP ${res.status}`);
+        }
+        return res.json() as Promise<ExecuteResult>;
+    },
 
     stopExecution: () =>
         request<{ stopped: boolean; message: string }>("/execute/stop", {

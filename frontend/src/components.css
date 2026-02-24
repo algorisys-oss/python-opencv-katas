@@ -459,8 +459,32 @@
 
 .kata-editor-actions {
     display: flex;
-    gap: 8px;
+    gap: 12px;
     align-items: center;
+}
+
+.file-input-compact {
+    font-size: 11px;
+    color: var(--color-text-secondary);
+    max-width: 180px;
+    padding: 2px;
+}
+
+.file-input-compact::-webkit-file-upload-button {
+    background-color: var(--color-bg-hover);
+    color: var(--color-text-primary);
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    padding: 3px 8px;
+    margin-right: 8px;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 500;
+    transition: background-color 0.15s;
+}
+
+.file-input-compact::-webkit-file-upload-button:hover {
+    background-color: var(--color-bg-elevated);
 }
 
 .kata-output-toolbar {
