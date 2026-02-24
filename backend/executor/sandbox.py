@@ -34,7 +34,7 @@ def run_code(code: str) -> dict:
     """
     # Write code to a temp file
     with tempfile.NamedTemporaryFile(
-        mode="w", suffix=".py", delete=False, prefix="kata_"
+        mode="w", suffix=".py", delete=False, prefix="kata_", encoding="utf-8"
     ) as tmp:
         tmp.write(code)
         tmp_path = tmp.name
