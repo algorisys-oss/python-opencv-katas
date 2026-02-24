@@ -1,0 +1,401 @@
+# Full Codebase Explanation — python-opencv-katas
+
+## Project Overview
+
+An interactive web app to **learn OpenCV** through structured exercises ("katas"). You write Python code in the browser, it runs on the backend, and the output image is displayed instantly.
+
+```mermaid
+graph LR
+    Browser["Browser :5173"] -->|POST /api/execute| Vite["Vite Proxy"]
+    Vite -->|Forward| FastAPI["FastAPI :8001"]
+    FastAPI -->|spawn subprocess| Runner["sandbox-runner.py"]
+    Runner -->|IMAGE:base64| FastAPI
+    FastAPI -->|JSON response| Browser
+```
+
+---
+
+## Backend (Python / FastAPI)
+
+Located in: `d:\projects\python-opencv-katas\backend`
+
+---
+
+### [\_\_init\_\_.py](file:///d:/projects/python-opencv-katas/backend/__init__.py)
+Empty file. Makes `backend/` a Python package so imports like `from backend.models.db import ...` work. Without this file, Python wouldn't recognize `backend` as a package.
+
+---
+
+### [main.py](file:///d:/projects/python-opencv-katas/backend/main.py) — App Entry Point
+**Purpose**: Creates and configures the FastAPI application.
+
+**What it does**:
+1. Creates a `FastAPI()` instance with title "OpenCV Interactive Playground"
+2. Adds **CORS middleware** — allows the frontend (`localhost:5173`) to call the API
+3. Registers **3 routers**: [katas](file:///d:/projects/python-opencv-katas/backend/routers/katas.py#15-33), [execute](file:///d:/projects/python-opencv-katas/frontend/src/api/client.ts#56-61), `auth`
+4. On startup, calls [init_db()](file:///d:/projects/python-opencv-katas/backend/models/db.py#24-66) to create DB tables and seed kata data
+5. Has a root `/` endpoint that returns a health check message
+
+**Key line**: `app.include_router(katas.router)` — this is how FastAPI knows about `/api/katas`
+
+---
+
+### [requirements.txt](file:///d:/projects/python-opencv-katas/backend/requirements.txt) — Dependencies
+
+| Package | Purpose |
+|---|---|
+| `fastapi` | Web framework (handles routes, validation) |
+| `uvicorn[standard]` | ASGI server (runs the FastAPI app) |
+| `opencv-python-headless` | OpenCV without GUI (no window display needed on server) |
+| `numpy` | Array operations (images are NumPy arrays) |
+| `python-jose[cryptography]` | JWT token creation/verification |
+| `passlib[bcrypt]` | Password hashing |
+| `python-multipart` | File upload support in FastAPI |
+| `email-validator` | Validates email format in Pydantic models |
+| `python-frontmatter` | Parses YAML frontmatter from [.md](file:///d:/projects/python-opencv-katas/backend/data/katas/46-flood-fill.md) files |
+| `python-dotenv` | Load environment variables from `.env` file |
+
+---
+
+### [models/db.py](file:///d:/projects/python-opencv-katas/backend/models/db.py) — Database Layer
+**Purpose**: SQLite database setup, connection management, and kata seeding.
+
+**Tables created**:
+- `users` — email, password_hash, created_at
+- [katas](file:///d:/projects/python-opencv-katas/backend/routers/katas.py#15-33) — slug, title, level, concepts, content_json
+- `user_progress` — tracks which katas a user has completed
+- `user_code_versions` — saves user code snapshots (version history)
+
+**Key functions**:
+- [get_conn()](file:///d:/projects/python-opencv-katas/backend/models/db.py#18-22) — returns a SQLite connection with `row_factory=sqlite3.Row` (so you can access columns by name)
+- [init_db()](file:///d:/projects/python-opencv-katas/backend/models/db.py#24-66) — creates tables if they don't exist, then calls [_seed_katas()](file:///d:/projects/python-opencv-katas/backend/models/db.py#81-121)
+- [_seed_katas()](file:///d:/projects/python-opencv-katas/backend/models/db.py#81-121) — reads every [.md](file:///d:/projects/python-opencv-katas/backend/data/katas/46-flood-fill.md) file from `backend/data/katas/`, parses frontmatter (slug, title, level, concepts) and extracts starter code from the `## Starter Code` section, then upserts into the [katas](file:///d:/projects/python-opencv-katas/backend/routers/katas.py#15-33) table
+- [_extract_starter_code()](file:///d:/projects/python-opencv-katas/backend/models/db.py#68-79) — regex that finds the ```python block under `## Starter Code`
+
+**Data flow**:
+```
+backend/data/katas/01-image-loading.md
+        │
+        ▼ (python-frontmatter parses it)
+  slug: "01-image-loading"
+  title: "Image Loading & Display"
+  level: "beginner"
+  body: "## What Problem Are We Solving?..."
+  starter_code: "import cv2\nimport numpy as np\n..."
+        │
+        ▼ (INSERT INTO katas)
+  SQLite database: backend/data/opencv-katas.db
+```
+
+---
+
+### [models/schemas.py](file:///d:/projects/python-opencv-katas/backend/models/schemas.py) — Pydantic Models
+**Purpose**: Defines the shape of every request and response. FastAPI uses these for automatic validation and documentation.
+
+| Model | Used For |
+|---|---|
+| [KataListItem](file:///d:/projects/python-opencv-katas/frontend/src/api/client.ts#7-14) | Response for `GET /api/katas` — id, slug, title, level, concepts |
+| [KataDetail](file:///d:/projects/python-opencv-katas/backend/models/schemas.py#19-29) | Response for `GET /api/katas/{slug}` — adds body, prerequisites, starter_code, demo_controls |
+| [ExecuteRequest](file:///d:/projects/python-opencv-katas/backend/models/schemas.py#33-35) | Request body for `POST /api/execute` — just `{ "code": "..." }` |
+| [ExecuteResult](file:///d:/projects/python-opencv-katas/backend/models/schemas.py#37-41) | Response for execute — `image_b64`, `logs`, [error](file:///d:/projects/python-opencv-katas/backend/executor/sandbox.py#92-108) |
+| [UserRegister](file:///d:/projects/python-opencv-katas/backend/models/schemas.py#45-48) | Request for registration — email (validated), password |
+| [UserLogin](file:///d:/projects/python-opencv-katas/backend/models/schemas.py#50-53) | Request for login — email, password |
+| [Token](file:///d:/projects/python-opencv-katas/backend/models/schemas.py#55-58) | Response after auth — `access_token`, `token_type` |
+
+---
+
+### [routers/katas.py](file:///d:/projects/python-opencv-katas/backend/routers/katas.py) — Kata API
+**Purpose**: Two endpoints for retrieving kata data.
+
+- **`GET /api/katas`** — Returns all katas as a summary list (id, slug, title, level, concepts). Used by the sidebar.
+- **`GET /api/katas/{slug}`** — Returns full detail for one kata. Parses `content_json` from DB to extract body, prerequisites, starter_code, demo_controls. Used when you click a kata.
+
+---
+
+### [routers/execute.py](file:///d:/projects/python-opencv-katas/backend/routers/execute.py) — Code Execution API
+**Purpose**: Single endpoint that runs user code.
+
+- **`POST /api/execute`** — Receives `{ "code": "import cv2..." }`, passes it to `sandbox.run_code()`, returns `{ "image_b64": "...", "logs": "...", "error": "..." }`
+
+This file is intentionally tiny (25 lines) — all the real work happens in the executor.
+
+---
+
+### [routers/auth.py](file:///d:/projects/python-opencv-katas/backend/routers/auth.py) — Authentication API
+**Purpose**: User registration and login with JWT tokens.
+
+- **`POST /api/auth/register`** — Creates user, hashes password with bcrypt, returns JWT
+- **`POST /api/auth/login`** — Verifies credentials, returns JWT
+
+**Security note**: `SECRET_KEY` is hardcoded as `"opencv-katas-secret-change-in-prod"`. Fine for local dev, must be changed for production.
+
+Helper functions:
+- [_hash()](file:///d:/projects/python-opencv-katas/backend/routers/auth.py#25-27) — bcrypt password hashing
+- [_verify()](file:///d:/projects/python-opencv-katas/backend/routers/auth.py#29-31) — bcrypt password verification
+- [_make_token()](file:///d:/projects/python-opencv-katas/backend/routers/auth.py#33-40) — creates a JWT with user_id, email, and 72-hour expiry
+
+---
+
+### [executor/sandbox.py](file:///d:/projects/python-opencv-katas/backend/executor/sandbox.py) — Execution Orchestrator
+**Purpose**: The "manager" that safely runs user code in a subprocess.
+
+**Flow**:
+1. **Write** user code to a temp [.py](file:///d:/projects/python-opencv-katas/backend/main.py) file (with `encoding="utf-8"` for Windows)
+2. **Spawn** subprocess: `python sandbox-runner.py temp_file.py`
+3. **Wait** up to 10 seconds (kills if timeout)
+4. **Parse** stdout line by line:
+   - Lines starting with `IMAGE:` → base64 PNG image
+   - Lines starting with `INFO:` → log messages
+   - Lines starting with `EXEC_ERROR:` → error messages
+5. **Cleanup** — delete the temp file
+6. **Return** dict with `image_b64`, `logs`, [error](file:///d:/projects/python-opencv-katas/backend/executor/sandbox.py#92-108)
+
+Also has [_make_friendly_error()](file:///d:/projects/python-opencv-katas/backend/executor/sandbox.py#92-108) which converts Python exceptions into beginner-friendly messages with emojis.
+
+---
+
+### [executor/sandbox-runner.py](file:///d:/projects/python-opencv-katas/backend/executor/sandbox-runner.py) — Isolated Code Runner
+**Purpose**: The "worker" that actually executes user code in isolation.
+
+**Security layers**:
+1. **Monkey-patches OpenCV** — `cv2.imshow()` is replaced with a function that captures the image to memory instead of opening a window. `cv2.waitKey()` and `cv2.destroyAllWindows()` become no-ops.
+2. **Restricts imports** — Only allows: `cv2`, `numpy`, `np`, `math`, `random`, `time`, `collections`. Any other import raises an `ImportError`.
+3. **Restricted globals** — The [exec()](file:///d:/projects/python-opencv-katas/frontend/src/api/client.ts#56-61) call only has `cv2`, `np`, `numpy` in its namespace.
+
+**Output protocol** (printed to stdout for parent to read):
+- `IMAGE:<base64>` — the last image from `cv2.imshow()`
+- `INFO:...` — if no `cv2.imshow()` was called
+- `EXEC_ERROR:...` — written to stderr if code throws an exception
+
+---
+
+### [data/katas/](file:///d:/projects/python-opencv-katas/backend/data/katas) — 100 Lesson Files
+Each [.md](file:///d:/projects/python-opencv-katas/backend/data/katas/46-flood-fill.md) file has YAML frontmatter + Markdown content:
+
+```yaml
+---
+slug: 01-image-loading
+title: Image Loading & Display
+level: beginner
+concepts: [cv2.imread, numpy arrays, image shape, cv2.imshow]
+prerequisites: [00-opencv-basics]
+---
+
+## What Problem Are We Solving?
+...lesson content...
+
+## Starter Code
+```python
+import cv2
+...
+```
+
+Topics range from basics (pixel access, drawing) through filtering, edge detection, contours, feature matching, video processing, to deep learning (YOLO, SSD).
+
+---
+
+## Frontend (SolidJS / TypeScript / Vite)
+
+Located in: `d:\projects\python-opencv-katas\frontend`
+
+---
+
+### [index.html](file:///d:/projects/python-opencv-katas/frontend/index.html) — HTML Shell
+**Purpose**: The single HTML page. Loads Google Fonts (Inter + JetBrains Mono) and mounts the SolidJS app into `<div id="root">`. Vite processes the `<script src="/src/index.tsx">` tag.
+
+---
+
+### [vite.config.ts](file:///d:/projects/python-opencv-katas/frontend/vite.config.ts) — Build Config
+**Purpose**: Configures Vite with:
+- `solid()` plugin — SolidJS JSX compilation
+- `tailwindcss()` plugin — CSS utility classes
+- Dev server on port **5173**
+- **Proxy**: `/api` requests → `http://localhost:8001` (the backend)
+
+The proxy is critical — without it, the browser would need CORS for every API call.
+
+---
+
+### [package.json](file:///d:/projects/python-opencv-katas/frontend/package.json) — Dependencies
+
+| Package | Purpose |
+|---|---|
+| `solid-js` | UI framework (reactive, fine-grained updates) |
+| `@solidjs/router` | Client-side routing (`/kata/:slug`) |
+| `marked` | Converts Markdown → HTML (for kata descriptions) |
+| `tailwindcss` | Utility-first CSS framework |
+| `vite` | Build tool / dev server |
+| `vite-plugin-solid` | Vite integration for SolidJS |
+| `typescript` | Type checking |
+
+---
+
+### [src/index.tsx](file:///d:/projects/python-opencv-katas/frontend/src/index.tsx) — App Bootstrap
+**Purpose**: Entry point. Wraps the app in providers and mounts to DOM.
+
+```
+ThemeProvider → Router → App → render into #root
+```
+
+Also imports global CSS: `index.css` and `components.css`.
+
+---
+
+### [src/App.tsx](file:///d:/projects/python-opencv-katas/frontend/src/App.tsx) — Root Component
+**Purpose**: Defines the app layout and routing.
+
+- **Layout component**: Fetches all katas via `createResource(api.getKatas)`, shows sidebar + main content area. Auto-redirects `/` to the first kata.
+- **Routes**:
+  - `/` → Loading placeholder (redirect happens immediately)
+  - `/kata/:slug` → `KataPage` component
+
+`currentSlug()` is derived reactively from the URL, so the sidebar highlights correctly.
+
+---
+
+### [src/api/client.ts](file:///d:/projects/python-opencv-katas/frontend/src/api/client.ts) — API Client
+**Purpose**: Typed fetch wrapper for all backend communication.
+
+Defines TypeScript interfaces that mirror the backend Pydantic schemas:
+- `KataListItem`, `KataDetail`, `DemoControl`, `ExecuteResult`
+
+Exposes `api` object with methods:
+- `api.getKatas()` → `GET /api/katas`
+- `api.getKata(slug)` → `GET /api/katas/{slug}`
+- `api.executeCode(code)` → `POST /api/execute`
+- `api.login(email, password)` → `POST /api/auth/login`
+- `api.register(email, password)` → `POST /api/auth/register`
+
+Generic `request<T>()` function handles JSON headers, error extraction, and typing.
+
+---
+
+### [src/context/ThemeContext.tsx](file:///d:/projects/python-opencv-katas/frontend/src/context/ThemeContext.tsx) — Theme Management
+**Purpose**: Light/dark mode toggle using SolidJS Context API.
+
+- Stores theme in `localStorage` (persists across refreshes)
+- Sets `data-theme` attribute on `<html>` element (CSS uses this for theming)
+- Defaults to **dark mode**
+- Exports `useTheme()` hook for any component to access `theme()` and `toggleTheme()`
+
+---
+
+### [src/pages/kata-page.tsx](file:///d:/projects/python-opencv-katas/frontend/src/pages/kata-page.tsx) — Main Page
+**Purpose**: The primary view when you select a kata. Has two tabs.
+
+**State signals**:
+- `activeTab` — "details" or "code"
+- `code` — current editor content
+- `result` — execution result (image, logs, error)
+- `running` — loading state
+- `focus` — "split", "editor", or "output" (panel sizing)
+
+**Tab: Details** → Shows `DemoPanel` (rendered Markdown)
+**Tab: Code** → Shows split view:
+- Left: `CodeEditor` + toolbar (Reset, Maximize, Run button)
+- Right: `OutputPanel` + toolbar (Open in new tab, Maximize)
+
+**Key behaviors**:
+- `handleRun()` — calls `api.executeCode()`, sets result
+- `handleReset()` — resets code to starter code
+- `openOutputInNewTab()` — creates a blob URL with the output image HTML
+- Navigating to a new kata resets all state (code, result, focus)
+
+---
+
+### [src/components/kata-sidebar.tsx](file:///d:/projects/python-opencv-katas/frontend/src/components/kata-sidebar.tsx) — Navigation Sidebar
+**Purpose**: Left panel listing all 100 katas grouped by level.
+
+- Groups katas into Beginner / Intermediate / Advanced sections
+- Each item shows serial number, title, and first 2 concept tags
+- Active kata is highlighted via `classList`
+- Uses `<A>` component from SolidJS router for navigation
+- Header has a theme toggle button (🌙/☀️)
+
+---
+
+### [src/components/code-editor.tsx](file:///d:/projects/python-opencv-katas/frontend/src/components/code-editor.tsx) — Monaco Editor
+**Purpose**: Embeds the VS Code editor (Monaco) in the browser.
+
+- Loads Monaco from **CDN** (no npm install needed, ~2MB)
+- Configured for **Python** language with dark theme
+- Uses **JetBrains Mono** font, 14px, 4-space tabs
+- `onDidChangeModelContent` fires `onChange` callback on every keystroke
+- `createEffect` syncs external value changes (kata switch, reset)
+- `onCleanup` disposes the editor when component unmounts
+
+---
+
+### [src/components/demo-panel.tsx](file:///d:/projects/python-opencv-katas/frontend/src/components/demo-panel.tsx) — Markdown Renderer
+**Purpose**: Renders the kata's Markdown body as HTML.
+
+- Uses `marked.parse()` to convert Markdown → HTML
+- Result is injected via `innerHTML` (SolidJS equivalent of React's `dangerouslySetInnerHTML`)
+- Wrapped in `createMemo` so it only re-parses when the kata body changes
+
+---
+
+### [src/components/kata-header.tsx](file:///d:/projects/python-opencv-katas/frontend/src/components/kata-header.tsx) — Kata Title Bar
+**Purpose**: Shows the kata title, level badge, and concept chips.
+
+- Title in `<h1>`
+- Level badge with CSS class `level-badge--beginner/intermediate/advanced` (different colors)
+- Concept tags rendered as `<code>` chips
+
+---
+
+### [src/components/output-panel.tsx](file:///d:/projects/python-opencv-katas/frontend/src/components/output-panel.tsx) — Execution Output
+**Purpose**: Displays the result of running code.
+
+Shows one of four states:
+1. **Empty** — "Run your code to see output" (before any execution)
+2. **Image** — Renders base64 PNG as `<img>` tag
+3. **No image** — "No image output. Call `cv2.imshow()`..." (code ran but didn't show an image)
+4. **Error** — Red error block with the friendly error message
+
+Logs are shown in a `<pre>` block below the image.
+
+---
+
+### [src/index.css](file:///d:/projects/python-opencv-katas/frontend/src/index.css) — Global Styles
+Base styles, CSS variables for theming (colors, fonts, spacing), and layout resets.
+
+### [src/components.css](file:///d:/projects/python-opencv-katas/frontend/src/components.css) — Component Styles
+All component-specific CSS: sidebar, editor layout, output panel, buttons, badges, tabs, etc.
+
+---
+
+## Data Flow Summary
+
+```mermaid
+sequenceDiagram
+    participant U as Browser
+    participant V as Vite Proxy
+    participant F as FastAPI
+    participant S as sandbox.py
+    participant R as sandbox-runner.py
+
+    U->>V: GET /api/katas
+    V->>F: Forward
+    F->>F: Query SQLite
+    F-->>U: JSON list of 100 katas
+
+    U->>U: User clicks kata
+    U->>V: GET /api/katas/01-image-loading
+    V->>F: Forward
+    F-->>U: JSON with body + starter_code
+
+    U->>U: User edits code, clicks Run
+    U->>V: POST /api/execute {code: "..."}
+    V->>F: Forward
+    F->>S: run_code(code)
+    S->>S: Write code to temp.py
+    S->>R: subprocess: python sandbox-runner.py temp.py
+    R->>R: Monkey-patch cv2.imshow
+    R->>R: exec(user_code)
+    R->>R: Encode captured image to base64
+    R-->>S: stdout: IMAGE:<base64>
+    S-->>F: {image_b64, logs, error}
+    F-->>U: JSON response
+    U->>U: Display image in OutputPanel
+```
