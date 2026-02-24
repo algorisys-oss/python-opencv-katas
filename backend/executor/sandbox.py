@@ -21,7 +21,18 @@ _active_local_process: subprocess.Popen | None = None
 _active_local_lock = threading.Lock()
 
 
-def run_code(code: str) -> dict:
+def _write_uploaded_files(run_dir: Path, uploaded_files: list[tuple[str, bytes]] | None) -> None:
+    """Persist uploaded files into the run directory with safe filenames."""
+    if not uploaded_files:
+        return
+    for filename, content in uploaded_files:
+        safe_name = Path(filename).name
+        if not safe_name:
+            continue
+        (run_dir / safe_name).write_bytes(content)
+
+
+def run_code(code: str, uploaded_files: list[tuple[str, bytes]] | None = None) -> dict:
     """
     Execute user-submitted code safely in an isolated subprocess.
 
@@ -32,48 +43,48 @@ def run_code(code: str) -> dict:
             "error": str
         }
     """
-    # Write code to a temp file
-    with tempfile.NamedTemporaryFile(
-        mode="w", suffix=".py", delete=False, prefix="kata_"
-    ) as tmp:
-        tmp.write(code)
-        tmp_path = tmp.name
-
     try:
-        result = subprocess.run(
-            [sys.executable, str(RUNNER_PATH), tmp_path],
-            capture_output=True,
-            text=True,
-            timeout=TIMEOUT_SECONDS,
-        )
+        with tempfile.TemporaryDirectory(prefix="kata_run_") as run_dir_str:
+            run_dir = Path(run_dir_str)
+            tmp_path = run_dir / "kata.py"
+            tmp_path.write_text(code, encoding="utf-8")
+            _write_uploaded_files(run_dir, uploaded_files)
 
-        stdout = result.stdout.strip()
-        stderr = result.stderr.strip()
+            result = subprocess.run(
+                [sys.executable, str(RUNNER_PATH), str(tmp_path)],
+                capture_output=True,
+                text=True,
+                timeout=TIMEOUT_SECONDS,
+                cwd=str(run_dir),
+            )
 
-        image_b64 = None
-        logs_lines = []
-        error = ""
+            stdout = result.stdout.strip()
+            stderr = result.stderr.strip()
 
-        for line in stdout.splitlines():
-            if line.startswith("IMAGE:"):
-                image_b64 = line[len("IMAGE:"):]
-            elif line.startswith("INFO:"):
-                logs_lines.append(line[len("INFO:"):])
-            else:
-                logs_lines.append(line)
+            image_b64 = None
+            logs_lines = []
+            error = ""
 
-        if stderr:
-            for line in stderr.splitlines():
-                if line.startswith("EXEC_ERROR:"):
-                    error = _make_friendly_error(line[len("EXEC_ERROR:"):])
+            for line in stdout.splitlines():
+                if line.startswith("IMAGE:"):
+                    image_b64 = line[len("IMAGE:"):]
+                elif line.startswith("INFO:"):
+                    logs_lines.append(line[len("INFO:"):])
                 else:
                     logs_lines.append(line)
 
-        return {
-            "image_b64": image_b64,
-            "logs": "\n".join(logs_lines),
-            "error": error,
-        }
+            if stderr:
+                for line in stderr.splitlines():
+                    if line.startswith("EXEC_ERROR:"):
+                        error = _make_friendly_error(line[len("EXEC_ERROR:"):])
+                    else:
+                        logs_lines.append(line)
+
+            return {
+                "image_b64": image_b64,
+                "logs": "\n".join(logs_lines),
+                "error": error,
+            }
 
     except subprocess.TimeoutExpired:
         return {
@@ -88,14 +99,9 @@ def run_code(code: str) -> dict:
             "logs": "",
             "error": f"Execution failed: {e}",
         }
-    finally:
-        try:
-            os.unlink(tmp_path)
-        except OSError:
-            pass
 
 
-def run_local(code: str) -> dict:
+def run_local(code: str, uploaded_files: list[tuple[str, bytes]] | None = None) -> dict:
     """
     Run code directly on the desktop with real camera, real cv2.imshow,
     and no timeout. Used for live camera katas.
@@ -108,17 +114,16 @@ def run_local(code: str) -> dict:
     # Stop any previously running local process
     stop_local()
 
-    # Write code to a temp file (not auto-deleted — process needs it)
-    tmp = tempfile.NamedTemporaryFile(
-        mode="w", suffix=".py", delete=False, prefix="kata_live_"
-    )
-    tmp.write(code)
-    tmp_path = tmp.name
-    tmp.close()
+    run_dir = tempfile.mkdtemp(prefix="kata_live_")
+    run_dir_path = Path(run_dir)
+    tmp_path = run_dir_path / "kata.py"
+    tmp_path.write_text(code, encoding="utf-8")
+    _write_uploaded_files(run_dir_path, uploaded_files)
 
     try:
         proc = subprocess.Popen(
-            [sys.executable, "-u", tmp_path],
+            [sys.executable, "-u", str(tmp_path)],
+            cwd=str(run_dir_path),
         )
 
         with _active_local_lock:
@@ -132,7 +137,12 @@ def run_local(code: str) -> dict:
                 if _active_local_process is proc:
                     _active_local_process = None
             try:
-                os.unlink(tmp_path)
+                if tmp_path.exists():
+                    os.unlink(tmp_path)
+                for child in run_dir_path.iterdir():
+                    if child.is_file():
+                        child.unlink(missing_ok=True)
+                run_dir_path.rmdir()
             except OSError:
                 pass
 
@@ -147,7 +157,12 @@ def run_local(code: str) -> dict:
 
     except Exception as e:
         try:
-            os.unlink(tmp_path)
+            if tmp_path.exists():
+                os.unlink(tmp_path)
+            for child in run_dir_path.iterdir():
+                if child.is_file():
+                    child.unlink(missing_ok=True)
+            run_dir_path.rmdir()
         except OSError:
             pass
         return {
@@ -191,3 +206,5 @@ def _make_friendly_error(raw: str) -> str:
     if "AttributeError" in raw:
         return f"🔍 Attribute error: {raw}\nCheck the OpenCV function name."
     return f"❌ Error: {raw}"
+
+

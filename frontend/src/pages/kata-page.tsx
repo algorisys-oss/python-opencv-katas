@@ -32,6 +32,10 @@ const KataPage: Component = () => {
     const [saving, setSaving] = createSignal(false);
     const [saveMsg, setSaveMsg] = createSignal("");
     const [completed, setCompleted] = createSignal(false);
+    const [uploadFile, setUploadFile] = createSignal<File | null>(null);
+
+    const isImageMode = () => code().includes("cv2.imread") || (kata()?.level !== "live" && !isWebcamMode());
+    const isWebcamMode = () => code().includes("cv2.VideoCapture");
 
     const starterCode = () => kata()?.starter_code ?? "";
     const isLive = () => kata()?.level === "live";
@@ -58,12 +62,12 @@ const KataPage: Component = () => {
                     if (saved && saved.code) {
                         setCode(saved.code);
                     }
-                }).catch(() => {});
+                }).catch(() => { });
 
                 // Check completion status
                 api.getProgress().then((progress) => {
                     setCompleted(progress.some((p) => p.kata_slug === k.slug));
-                }).catch(() => {});
+                }).catch(() => { });
             }
         }
     });
@@ -72,6 +76,7 @@ const KataPage: Component = () => {
         setCode(starterCode());
         setResult(null);
         setSaveMsg("");
+        setUploadFile(null);
     };
 
     const handleSave = async () => {
@@ -113,10 +118,9 @@ const KataPage: Component = () => {
         setRunning(true);
         setResult(null);
         try {
-            const local = isLive();
-            const res = await api.executeCode(code(), local);
+            const res = await api.executeCode(code(), isImageMode() ? uploadFile() : null);
             setResult(res);
-            if (local) {
+            if (isWebcamMode()) {
                 setLocalRunning(true);
             }
         } catch (e: any) {
@@ -224,6 +228,7 @@ const KataPage: Component = () => {
                                         <div class="kata-editor-toolbar">
                                             <span class="kata-editor-filename">kata.py</span>
                                             <div class="kata-editor-actions">
+
                                                 <button class="btn btn--ghost" onClick={handleReset} title="Reset to starter code">
                                                     Reset
                                                 </button>
@@ -254,12 +259,21 @@ const KataPage: Component = () => {
                                                         ■ Stop
                                                     </button>
                                                 </Show>
+                                                <Show when={isImageMode()}>
+                                                    <input
+                                                        type="file"
+                                                        accept="image/*"
+                                                        class="file-input-compact"
+                                                        onChange={(e) => setUploadFile(e.currentTarget.files?.[0] ?? null)}
+                                                        title="Upload an image for cv2.imread('filename')"
+                                                    />
+                                                </Show>
                                                 <button
                                                     class="btn btn--primary"
                                                     onClick={handleRun}
                                                     disabled={running()}
                                                 >
-                                                    {running() ? "Launching…" : isLive() ? "▶ Run on Desktop" : "▶ Run"}
+                                                    {running() ? "Launching…" : isWebcamMode() ? "▶ Run on Desktop" : "▶ Run"}
                                                 </button>
                                             </div>
                                         </div>

@@ -3,7 +3,8 @@ uvicorn[standard]
 opencv-python
 numpy
 python-jose[cryptography]
-passlib[bcrypt]
+passlib[bcrypt]==1.7.4
+bcrypt==3.2.2
 python-multipart
 email-validator
 python-frontmatter

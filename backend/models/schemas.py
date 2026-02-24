@@ -29,14 +29,15 @@ class KataDetail(BaseModel):
 
 
 # ── Execution ─────────────────────────────────────────────────────────────────
-
+from pydantic import BaseModel
+from typing import Optional
 class ExecuteRequest(BaseModel):
     code: str
     local: bool = False  # True = run on desktop with real camera (no sandbox)
 
 
 class ExecuteResult(BaseModel):
-    image_b64: str | None = None
+    image_b64: Optional[str] = None
     logs: str = ""
     error: str = ""
 
